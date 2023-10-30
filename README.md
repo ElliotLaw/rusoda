@@ -1,4 +1,4 @@
-# lsoda_rs
+# rusoda
 
 #### Description
 

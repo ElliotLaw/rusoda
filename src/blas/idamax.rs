@@ -1,4 +1,5 @@
 #[no_mangle]
+#[inline(always)]
 pub fn idamax(dx: &[f64], n: usize, incx: usize) -> usize {
     /*
     [2023-10-17]

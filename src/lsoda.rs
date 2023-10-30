@@ -1,8 +1,7 @@
-use crate::arrops::*;
 use crate::blas::prelude::*;
 use crate::common::*;
 
-use log::{error, info, trace, warn};
+use log::{error, info, warn};
 
 // use thiserror::Error;
 
@@ -2053,7 +2052,6 @@ impl LSODA {
         for i in 1..neq + 1 {
             y_i[i] = y[i - 1];
         }
-        // println!("{:?}", yout);
 
         let f_step = 0.01;
 
@@ -2105,47 +2103,6 @@ impl LSODA {
         all_y.push(y_i.to_vec());
 
         (all_t, all_y)
-    }
-
-    fn find_initial_h(
-        system: &dyn OdeSystem,
-        t0: f64,
-        y0: &mut [f64],
-        direction: i8,
-        order: usize,
-        rtol: f64,
-        atol: f64,
-    ) -> f64 {
-        /*
-           Empirically select a good initial step.
-           E. Hairer, S. P. Norsett G. Wanner, "Solving Ordinary Differential
-           Equations I: Nonstiff Problems", Sec. II.4.
-        */
-        let neq = y0.len();
-        let mut f0 = vec![0.0; neq];
-        let mut f1 = vec![0.0; neq];
-        system.func(t0, y0, &mut f0);
-
-        let scale = add_scalar(&mul_scalar(&absf(&y0), rtol), atol);
-        let d0: f64 = (sumf(&powi(&div(&y0, &scale), 2)) / y0.len() as f64).sqrt();
-        let d1: f64 = (sumf(&powi(&div(&f0, &scale), 2)) / f0.len() as f64).sqrt();
-        let h0: f64;
-        let h1: f64;
-        if d0 < 1e-5 || d1 < 1e-5 {
-            h0 = 1e-6;
-        } else {
-            h0 = 0.01 * d0 / d1;
-        }
-        let mut y1 = add(y0, &mul_scalar(&f0, h0 * direction as f64));
-        system.func(t0 + h0 * direction as f64, &mut y1, &mut f1);
-        let d2 = (sumf(&powi(&div(&sub(&f1, &f0), &scale), 2)) / f0.len() as f64).sqrt() / h0;
-
-        if d1 <= 1e-15 || d2 <= 1e-15 {
-            h1 = (h0 * 1e-3).max(1e-6);
-        } else {
-            h1 = (0.01 / d1.max(d2)).powf(1. / (order + 1) as f64);
-        }
-        h1.min(100. * h0)
     }
 }
 

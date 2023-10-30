@@ -1,5 +1,8 @@
 use super::{daxpy::daxpy, ddot::ddot};
+
+/// Solves the double precision system A * x = b  or  trans(A) * x = b using the factors computed by dgeco or dgefa.
 #[no_mangle]
+#[inline(always)]
 pub fn dgesl(a: &mut Vec<Vec<f64>>, n: usize, ipvt: &[usize], b: &mut [f64], job: usize) {
     /*
     [2023-10-17]

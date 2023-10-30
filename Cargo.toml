@@ -1,14 +1,17 @@
 [package]
-name = "testlsoda"
+name = "rusoda"
 version = "0.1.0"
+license = "MIT"
+description = "Pure rust and just need log dependencies implementation of odepack dlsoda."
+authors = ["Elliot Law <13690534171@163.com>"]
+readme = "README.en.md"
+categories = ["science", "mathematics"]
+keywords = ["math", "ode"]
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+
 [dependencies]
 log = "0.4"
 env_logger = "0.9"
-rand = "*"
-# num-traits = "0.2.17"
-# ndarray = { version = "0.15.6", feature = ["blas"] }
-# blas-src = "0.9"

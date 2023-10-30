@@ -1,36 +1,56 @@
 # lsoda_rs
 
 #### Description
+
 rust implementation of odepack dlsoda
-
-#### Software Architecture
-Software architecture description
-
-#### Installation
-
-1.  xxxx
-2.  xxxx
-3.  xxxx
 
 #### Instructions
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+1.  Build a struct which contains your ode system coeffs and number of eqs.
 
-#### Contribution
+```
+struct Oral1Cpt {
+    incalc_par: Vec<f64>,
+    neq: usize,
+}
+```
 
-1.  Fork the repository
-2.  Create Feat_xxx branch
-3.  Commit your code
-4.  Create Pull Request
+2.  Implement OdeSystem trait for your struct(define the ode function).
 
+```
+use rusoda::OdeSystem;
 
-#### Gitee Feature
+impl OdeSystem for Oral1Cpt {
+    fn func(&self, _t: f64, _y: &mut [f64], _dy: &mut [f64]) {
+        let ka = self.incalc_par[0];
+        let cl = self.incalc_par[1];
+        let v = self.incalc_par[2];
+        (*_dy)[0] = -ka * (*_y)[0];
+        (*_dy)[1] = ka * (*_y)[0] - cl / v * (*_y)[1];
+    }
+}
+```
 
-1.  You can use Readme\_XXX.md to support different languages, such as Readme\_en.md, Readme\_zh.md
-2.  Gitee blog [blog.gitee.com](https://blog.gitee.com)
-3.  Explore open source project [https://gitee.com/explore](https://gitee.com/explore)
-4.  The most valuable open source project [GVP](https://gitee.com/gvp)
-5.  The manual of Gitee [https://gitee.com/help](https://gitee.com/help)
-6.  The most popular members  [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+3.  Initialize LSODA solver and call "solve" method.
+
+```
+use rusoda::IStateInput;
+use rusoda::LSODA;
+
+use std::time::Instant;
+    env_logger::init();
+    let mut t = 0.;
+    let tout = 12.;
+    let y = [4.0, 0.0];
+    let mut lsoda = LSODA::init();
+    let sys = Oral1Cpt::init(vec![3.09, 32., 648.]);
+
+    let mut state = IStateInput::InitialCall;
+    let tt = Instant::now();
+
+    let res = lsoda.solve(
+        &sys, sys.neq, &y, &mut t, tout, &mut state, 1e-3, 1e-6, false,
+    );
+
+    println!("{:?},TIME:{}MS", res, tt.elapsed().as_millis())
+```

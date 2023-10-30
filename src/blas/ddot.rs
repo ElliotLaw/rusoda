@@ -1,8 +1,15 @@
-use std::iter::zip;
+/// Calculate dot product of 2 vectors(the first element of vector will not used).
+/// # Examples
+///
+/// '''
+/// let n = 1000;
+/// let dx = vec![2.0; n + 1];
+/// let dy = vec![2.0; n + 1];
+/// let dot = ddot(n, &dx, &dy, 0, 0);
+/// assert_eq!(4000.0, dot);
 #[no_mangle]
 #[inline(always)]
 pub fn ddot(n: usize, dx: &[f64], dy: &[f64], incx: usize, incy: usize) -> f64 {
-    // assert!(n + 1 <= dx.len() && n + 1 <= dy.len(), "index out of bound");
     let mut r = 0f64;
     let m: usize;
     let mut ix: usize;

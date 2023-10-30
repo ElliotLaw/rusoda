@@ -1,4 +1,6 @@
+/// Computes the norm of a full n by n matrix.
 #[no_mangle]
+#[inline(always)]
 pub fn fnorm(n: usize, a: &Vec<Vec<f64>>, w: &[f64]) -> f64 {
     /*
        This subroutine computes the norm of a full n by n matrix,
@@ -22,5 +24,3 @@ pub fn fnorm(n: usize, a: &Vec<Vec<f64>>, w: &[f64]) -> f64 {
     }
     an
 }
-
-

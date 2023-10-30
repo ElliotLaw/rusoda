@@ -1,4 +1,6 @@
+/// Scalar vector multiplication
 #[no_mangle]
+#[inline(always)]
 pub fn dscal(dx: &mut [f64], n: usize, incx: usize, da: &f64) {
     /*
     Purpose : scalar vector multiplication

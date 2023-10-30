@@ -1,3 +1,13 @@
+/// Operate muladd of 2 vectors and a scalar(the first element of vector will not used).
+/// # Examples
+///
+/// '''
+/// let n = 2;
+/// let da = 2.0;
+/// let dx = vec![0.0, 1.0, 2.0];
+/// let dy = vec![0.0, 3.0, 4.0];
+/// let axpy = ddot(n, &dx, &mut dy, 0, 0, &da);
+/// assert_eq!(vec![5.0, 8.0], axpy);
 #[no_mangle]
 pub fn daxpy(n: usize, dx: &[f64], dy: &mut [f64], incx: usize, incy: usize, da: &f64) {
     let m: usize;

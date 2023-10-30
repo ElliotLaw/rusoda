@@ -1,37 +1,56 @@
 # lsoda_rs
 
-#### 介绍
+#### Description
+
 rust implementation of odepack dlsoda
 
-#### 软件架构
-软件架构说明
+#### Instructions
 
+1.  Build a struct which contains your ode system coeffs and number of eqs.
 
-#### 安装教程
+```
+struct Oral1Cpt {
+    incalc_par: Vec<f64>,
+    neq: usize,
+}
+```
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+2.  Implement OdeSystem trait for your struct(define the ode function).
 
-#### 使用说明
+```
+use rusoda::OdeSystem;
 
-1.  xxxx
-2.  xxxx
-3.  xxxx
+impl OdeSystem for Oral1Cpt {
+    fn func(&self, _t: f64, _y: &mut [f64], _dy: &mut [f64]) {
+        let ka = self.incalc_par[0];
+        let cl = self.incalc_par[1];
+        let v = self.incalc_par[2];
+        (*_dy)[0] = -ka * (*_y)[0];
+        (*_dy)[1] = ka * (*_y)[0] - cl / v * (*_y)[1];
+    }
+}
+```
 
-#### 参与贡献
+3.  Initialize LSODA solver and call "solve" method.
 
-1.  Fork 本仓库
-2.  新建 Feat_xxx 分支
-3.  提交代码
-4.  新建 Pull Request
+```
+use rusoda::IStateInput;
+use rusoda::LSODA;
 
+use std::time::Instant;
+    env_logger::init();
+    let mut t = 0.;
+    let tout = 12.;
+    let y = [4.0, 0.0];
+    let mut lsoda = LSODA::init();
+    let sys = Oral1Cpt::init(vec![3.09, 32., 648.]);
 
-#### 特技
+    let mut state = IStateInput::InitialCall;
+    let tt = Instant::now();
 
-1.  使用 Readme\_XXX.md 来支持不同的语言，例如 Readme\_en.md, Readme\_zh.md
-2.  Gitee 官方博客 [blog.gitee.com](https://blog.gitee.com)
-3.  你可以 [https://gitee.com/explore](https://gitee.com/explore) 这个地址来了解 Gitee 上的优秀开源项目
-4.  [GVP](https://gitee.com/gvp) 全称是 Gitee 最有价值开源项目，是综合评定出的优秀开源项目
-5.  Gitee 官方提供的使用手册 [https://gitee.com/help](https://gitee.com/help)
-6.  Gitee 封面人物是一档用来展示 Gitee 会员风采的栏目 [https://gitee.com/gitee-stars/](https://gitee.com/gitee-stars/)
+    let res = lsoda.solve(
+        &sys, sys.neq, &y, &mut t, tout, &mut state, 1e-3, 1e-6, false,
+    );
+
+    println!("{:?},TIME:{}MS", res, tt.elapsed().as_millis())
+```

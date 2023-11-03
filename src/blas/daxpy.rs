@@ -9,6 +9,7 @@
 /// let axpy = ddot(n, &dx, &mut dy, 0, 0, &da);
 /// assert_eq!(vec![5.0, 8.0], axpy);
 #[no_mangle]
+#[inline(always)]
 pub fn daxpy(n: usize, dx: &[f64], dy: &mut [f64], incx: usize, incy: usize, da: &f64) {
     let m: usize;
     let mut ix: usize;

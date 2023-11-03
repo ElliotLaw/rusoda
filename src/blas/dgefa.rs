@@ -2,6 +2,7 @@ use super::{dscal::dscal, idamax::idamax};
 
 /// Factors a double matrix by Gaussian elimination.
 #[no_mangle]
+#[inline(always)]
 pub fn dgefa(a: &mut Vec<Vec<f64>>, n: usize, ipvt: &mut [usize], info: &mut usize) {
     /*
        Purpose : dgefa factors a double matrix by Gaussian elimination.

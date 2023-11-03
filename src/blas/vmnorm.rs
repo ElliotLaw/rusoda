@@ -1,4 +1,5 @@
 #[no_mangle]
+#[inline(always)]
 pub fn vmnorm(n: usize, v: &[f64], w: &[f64]) -> f64 {
     /*
        This function routine computes the weighted max-norm

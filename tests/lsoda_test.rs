@@ -46,7 +46,7 @@ pub fn oral_1cpt_test() {
     let tt = Instant::now();
 
     let res = lsoda.solve(
-        &sys, sys.neq, &y, &mut t, tout, &mut state, 1e-3, 1e-6, false,
+        &sys, sys.neq, &y, &mut t, tout, &mut state, 1e-3, 1e-6, false, false,
     );
 
     println!("{:?},TIME:{}MS", res, tt.elapsed().as_millis())

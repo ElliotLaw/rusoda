@@ -258,6 +258,7 @@ impl LSODA {
         ncf: &mut usize,
         rh: &mut f64,
         m: &mut usize,
+        reverse: bool,
     ) {
         let mut rm: f64 = 0.;
         let mut rate: f64 = 0.;
@@ -274,7 +275,12 @@ impl LSODA {
         for i in 1..self.n + 1 {
             y[i] = self.yh_[1][i];
         }
-        system.func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+        if reverse {
+            system.reverse_func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+        } else {
+            system.func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+        }
+
         self.nfe += 1;
         /*
            If indicated, the matrix P = I - h_ * el[1] * J is reevaluated and
@@ -286,7 +292,7 @@ impl LSODA {
                 match self.ipup {
                     CorrectionIterMethod::NoJac => (),
                     _ => {
-                        self.prja(*neq, y, system);
+                        self.prja(*neq, y, system, reverse);
                         self.ipup = CorrectionIterMethod::NoJac;
                         self.rc = 1.;
                         self.nslp = self.nst;
@@ -387,11 +393,21 @@ impl LSODA {
                 for i in 1..self.n + 1 {
                     y[i] = self.yh_[1][i];
                 }
-                system.func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+                if reverse {
+                    system.reverse_func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+                } else {
+                    system.func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+                }
+
                 self.nfe += 1;
             } else {
                 *delp = *del;
-                system.func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+                if reverse {
+                    system.reverse_func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+                } else {
+                    system.func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+                }
+
                 self.nfe += 1;
             }
         }
@@ -732,7 +748,7 @@ impl LSODA {
     }
 
     #[allow(unused_assignments)]
-    fn prja(&mut self, _neq: usize, y: &mut [f64], system: &dyn OdeSystem) {
+    fn prja(&mut self, _neq: usize, y: &mut [f64], system: &dyn OdeSystem, reverse: bool) {
         // let mut i = 0usize;
         let mut ier = 0usize;
         // let mut j = 0usize;
@@ -769,7 +785,12 @@ impl LSODA {
                 yj = y[j];
                 r = (self.sqrteta * yj.abs()).max(r0 / self.ewt[j]);
                 y[j] += r;
-                system.func(self.tn_, &mut y[1..], &mut self.acor[1..]);
+                if reverse {
+                    system.reverse_func(self.tn_, &mut y[1..], &mut self.acor[1..]);
+                } else {
+                    system.func(self.tn_, &mut y[1..], &mut self.acor[1..]);
+                }
+
                 for i in 1..self.n + 1 {
                     self.wm_[i][j] = (self.acor[i] - self.savf[i]) * fac;
                 }
@@ -932,7 +953,7 @@ impl LSODA {
     }
 
     #[allow(unused_assignments)]
-    fn stoda(&mut self, neq: usize, y: &mut [f64], system: &dyn OdeSystem) {
+    fn stoda(&mut self, neq: usize, y: &mut [f64], system: &dyn OdeSystem, reverse: bool) {
         assert!(neq + 1 == y.len());
         let mut corflag = 0usize;
         let mut orderflag = OrderFlag::NoChangeinHNq;
@@ -1098,6 +1119,7 @@ impl LSODA {
                     &mut ncf,
                     &mut rh,
                     &mut m,
+                    reverse,
                 );
                 if corflag == 0 {
                     break;
@@ -1276,7 +1298,12 @@ impl LSODA {
                         for i in 1..self.n + 1 {
                             y[i] = self.yh_[1][i];
                         }
-                        system.func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+                        if reverse {
+                            system.reverse_func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+                        } else {
+                            system.func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+                        }
+
                         self.nfe += 1;
                         for i in 1..self.n + 1 {
                             self.yh_[2][i] = self.h_ * self.savf[i];
@@ -1304,7 +1331,12 @@ impl LSODA {
                             for i in 1..self.n + 1 {
                                 y[i] = self.yh_[1][i];
                             }
-                            system.func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+                            if reverse {
+                                system.reverse_func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+                            } else {
+                                system.func(self.tn_, &mut y[1..], &mut self.savf[1..]);
+                            }
+
                             self.nfe += 1;
                             for i in 1..self.n + 1 {
                                 self.yh_[2][i] = self.h_ * self.savf[i];
@@ -1348,6 +1380,7 @@ impl LSODA {
         jt: CorrectionIterMethod,
         iworks: IWork,
         rworks: Rworks,
+        reverse: bool,
     ) {
         // println!("{:?}", y);
         if tout > *t {
@@ -1609,7 +1642,11 @@ impl LSODA {
                     error!("length of yh_[0] is not right");
                     return;
                 }
-                system.func(*t, &mut y[1..], &mut self.yh_[2][1..]);
+                if reverse {
+                    system.reverse_func(*t, &mut y[1..], &mut self.yh_[2][1..]);
+                } else {
+                    system.func(*t, &mut y[1..], &mut self.yh_[2][1..]);
+                }
 
                 self.nfe = 1;
 
@@ -1896,7 +1933,7 @@ impl LSODA {
                 }
             }
             /* Call stoda */
-            self.stoda(neq, y, system);
+            self.stoda(neq, y, system, reverse);
             match self.kflag {
                 KFlag::StepSuccess => {
                     /*
@@ -2032,6 +2069,7 @@ impl LSODA {
         rtol: f64,
         atol: f64,
         dense: bool,
+        reverse: bool,
     ) -> (Vec<f64>, Vec<Vec<f64>>) {
         let limit = (tout * 10.) as usize;
         let mut y_i = vec![0.; neq + 1];
@@ -2067,6 +2105,7 @@ impl LSODA {
             jt,
             iworks,
             rworks,
+            reverse,
         );
         all_t.push(*tin);
         all_y.push(y_i.to_vec());
@@ -2085,6 +2124,7 @@ impl LSODA {
                 jt,
                 iworks,
                 rworks,
+                reverse,
             );
             *tin += self.h_;
             count += 1;
@@ -2096,7 +2136,7 @@ impl LSODA {
         }
 
         self.step(
-            system, neq, &mut y_i, tin, tout, itask, istate, iopt, jt, iworks, rworks,
+            system, neq, &mut y_i, tin, tout, itask, istate, iopt, jt, iworks, rworks, reverse,
         );
         *tin = tout;
         all_t.push(*tin);

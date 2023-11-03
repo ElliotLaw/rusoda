@@ -247,7 +247,6 @@ impl LSODA {
     #[allow(unused_assignments)]
     fn correction(
         &mut self,
-        neq: &usize,
         y: &mut [f64],
         system: &dyn OdeSystem,
         corflag: &mut usize,
@@ -292,7 +291,7 @@ impl LSODA {
                 match self.ipup {
                     CorrectionIterMethod::NoJac => (),
                     _ => {
-                        self.prja(*neq, y, system, reverse);
+                        self.prja(y, system, reverse);
                         self.ipup = CorrectionIterMethod::NoJac;
                         self.rc = 1.;
                         self.nslp = self.nst;
@@ -748,7 +747,7 @@ impl LSODA {
     }
 
     #[allow(unused_assignments)]
-    fn prja(&mut self, _neq: usize, y: &mut [f64], system: &dyn OdeSystem, reverse: bool) {
+    fn prja(&mut self, y: &mut [f64], system: &dyn OdeSystem, reverse: bool) {
         // let mut i = 0usize;
         let mut ier = 0usize;
         // let mut j = 0usize;
@@ -953,7 +952,8 @@ impl LSODA {
     }
 
     #[allow(unused_assignments)]
-    fn stoda(&mut self, neq: usize, y: &mut [f64], system: &dyn OdeSystem, reverse: bool) {
+    fn stoda(&mut self, y: &mut [f64], system: &dyn OdeSystem, reverse: bool) {
+        let neq = system.get_neq();
         assert!(neq + 1 == y.len());
         let mut corflag = 0usize;
         let mut orderflag = OrderFlag::NoChangeinHNq;
@@ -1108,7 +1108,6 @@ impl LSODA {
                 }
                 pnorm = vmnorm(self.n, &self.yh_[1], &self.ewt);
                 self.correction(
-                    &neq,
                     y,
                     system,
                     &mut corflag,
@@ -1370,7 +1369,6 @@ impl LSODA {
     pub fn step(
         &mut self,
         system: &dyn OdeSystem,
-        neq: usize,
         y: &mut Vec<f64>,
         t: &mut f64,
         tout: f64,
@@ -1389,7 +1387,7 @@ impl LSODA {
             error!("[LSODA] tout = {} < t = {}", tout, t);
             return;
         }
-
+        let neq = system.get_neq();
         let mut iflag = IFlag::KTLegal;
         let mut lenyh = 0;
         let mut ihit = false;
@@ -1933,7 +1931,7 @@ impl LSODA {
                 }
             }
             /* Call stoda */
-            self.stoda(neq, y, system, reverse);
+            self.stoda(y, system, reverse);
             match self.kflag {
                 KFlag::StepSuccess => {
                     /*
@@ -2061,7 +2059,6 @@ impl LSODA {
     pub fn solve(
         &mut self,
         system: &dyn OdeSystem,
-        neq: usize,
         y: &[f64],
         tin: &mut f64,
         tout: f64,
@@ -2071,6 +2068,7 @@ impl LSODA {
         dense: bool,
         reverse: bool,
     ) -> (Vec<f64>, Vec<Vec<f64>>) {
+        let neq = system.get_neq();
         let limit = ((tout - *tin) * 10.) as usize;
         let mut y_i = vec![0.; neq + 1];
         let mut all_t = Vec::<f64>::new();
@@ -2095,7 +2093,6 @@ impl LSODA {
 
         self.step(
             system,
-            neq,
             &mut y_i,
             tin,
             *tin + f_step,
@@ -2114,7 +2111,6 @@ impl LSODA {
         while *tin + 2. * self.h_ < tout {
             self.step(
                 system,
-                neq,
                 &mut y_i,
                 tin,
                 *tin + self.h_,
@@ -2139,7 +2135,7 @@ impl LSODA {
         }
 
         self.step(
-            system, neq, &mut y_i, tin, tout, itask, istate, iopt, jt, iworks, rworks, reverse,
+            system, &mut y_i, tin, tout, itask, istate, iopt, jt, iworks, rworks, reverse,
         );
         *tin = tout;
         all_t.push(*tin);
@@ -2152,4 +2148,5 @@ impl LSODA {
 pub trait OdeSystem {
     fn func(&self, _t: f64, _y: &mut [f64], _dy: &mut [f64]);
     fn reverse_func(&self, _t: f64, _y: &mut [f64], _dy: &mut [f64]);
+    fn get_neq(&self) -> usize;
 }

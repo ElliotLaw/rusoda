@@ -31,6 +31,9 @@ impl OdeSystem for Oral1Cpt {
         (*_dy)[0] = ka * (*_y)[0];
         (*_dy)[1] = -ka * (*_y)[0] + cl / v * (*_y)[1];
     }
+    fn get_neq(&self) -> usize {
+        self.neq
+    }
 }
 
 pub fn oral_1cpt_test() {
@@ -45,9 +48,7 @@ pub fn oral_1cpt_test() {
     let mut state = IStateInput::InitialCall;
     let tt = Instant::now();
 
-    let res = lsoda.solve(
-        &sys, sys.neq, &y, &mut t, tout, &mut state, 1e-3, 1e-6, false, false,
-    );
+    let res = lsoda.solve(&sys, &y, &mut t, tout, &mut state, 1e-3, 1e-6, false, false);
 
     println!("{:?},TIME:{}MS", res, tt.elapsed().as_millis())
 }

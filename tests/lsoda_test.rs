@@ -24,6 +24,13 @@ impl OdeSystem for Oral1Cpt {
         (*_dy)[0] = -ka * (*_y)[0];
         (*_dy)[1] = ka * (*_y)[0] - cl / v * (*_y)[1];
     }
+    fn reverse_func(&self, _t: f64, _y: &mut [f64], _dy: &mut [f64]) {
+        let ka = self.incalc_par[0];
+        let cl = self.incalc_par[1];
+        let v = self.incalc_par[2];
+        (*_dy)[0] = ka * (*_y)[0];
+        (*_dy)[1] = -ka * (*_y)[0] + cl / v * (*_y)[1];
+    }
 }
 
 pub fn oral_1cpt_test() {

@@ -2108,4 +2108,5 @@ impl LSODA {
 
 pub trait OdeSystem {
     fn func(&self, _t: f64, _y: &mut [f64], _dy: &mut [f64]);
+    fn reverse_func(&self, _t: f64, _y: &mut [f64], _dy: &mut [f64]);
 }

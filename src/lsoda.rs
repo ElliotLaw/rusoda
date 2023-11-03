@@ -2108,7 +2108,7 @@ impl LSODA {
             reverse,
         );
         all_t.push(*tin);
-        all_y.push(y_i.to_vec());
+        all_y.push(y_i[1..].to_vec());
 
         let mut count = 0usize;
         while *tin + 2. * self.h_ < tout {
@@ -2130,7 +2130,7 @@ impl LSODA {
             count += 1;
             if !dense && count == limit {
                 all_t.push(*tin);
-                all_y.push(y_i.to_vec());
+                all_y.push(y_i[1..].to_vec());
                 count = 0;
             }
         }
@@ -2140,7 +2140,7 @@ impl LSODA {
         );
         *tin = tout;
         all_t.push(*tin);
-        all_y.push(y_i.to_vec());
+        all_y.push(y_i[1..].to_vec());
 
         (all_t, all_y)
     }

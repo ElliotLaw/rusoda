@@ -2132,6 +2132,9 @@ impl LSODA {
                 all_t.push(*tin);
                 all_y.push(y_i[1..].to_vec());
                 count = 0;
+            } else {
+                all_t.push(*tin);
+                all_y.push(y_i[1..].to_vec());
             }
         }
 

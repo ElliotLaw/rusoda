@@ -2071,7 +2071,7 @@ impl LSODA {
         dense: bool,
         reverse: bool,
     ) -> (Vec<f64>, Vec<Vec<f64>>) {
-        let limit = (tout * 10.) as usize;
+        let limit = ((tout - *tin) * 10.) as usize;
         let mut y_i = vec![0.; neq + 1];
         let mut all_t = Vec::<f64>::new();
         let mut all_y = Vec::<Vec<f64>>::new();

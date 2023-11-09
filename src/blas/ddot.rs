@@ -15,7 +15,7 @@ pub fn ddot(n: usize, dx: &[f64], dy: &[f64], incx: usize, incy: usize) -> f64 {
     let mut ix: usize;
     let mut iy: usize;
 
-    if incx == 0 && incy == 0 {
+    if incx == 1 && incy == 1 {
         m = n % 5;
         if m != 0 {
             for i in 1..m + 1 {
